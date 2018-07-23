@@ -909,7 +909,7 @@ class itemAction extends frontendAction {
          $profile['us_amazon']="show00-20";
          $profile['ch_amazon']="baicaiobl-23";
          $profile['sid']="baoliao";
-         $profile['mm_pid']="mm_27883119_3410238_93410083";
+         $profile['mm_pid']="mm_25900687_52350449_8466500195";
 
 
         if (empty($host) or substr_count(strtolower($url),'http')>=2){
@@ -1008,12 +1008,21 @@ class itemAction extends frontendAction {
                  if($applinzi_high_data[0] == 200)
                 {
                 $applinzi_high_result = json_decode($applinzi_high_data[1], TRUE);
-                $result['convert_url'] = $applinzi_high_result['result']['data']['coupon_click_url'];
+                $result['convert_url'] = $applinzi_high_result['result']['coupon_click_url'];
                 }
             }
           }
           else{
-             $result['convert_url'] =  $url;
+            $result['id'] =3;
+            $parsed_orig_url = parse_url($url);
+             parse_str($parsed_orig_url['query'],$parsed_orig_query);
+             if(isset($parsed_orig_query['activityId']) &&isset($parsed_orig_query['itemId']) ){
+                 $result['convert_url'] =  "https://uland.taobao.com/coupon/edetail?activityId=" . $parsed_orig_query['activityId'] . "&itemId=" . $parsed_orig_query['itemId'] . "&pid=" . $profile['mm_pid']. "&dx=1";;
+             }
+             else{
+                  $result['convert_url'] =  $url;
+             }
+             //$result['convert_url'] =  $url;
           }
           /*
             $result['id'] =3;

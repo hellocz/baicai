@@ -29,6 +29,8 @@ class userAction extends backendAction
             'width' => '500',
             'height' => '330'
         );
+         $p = $this->_get('p', 'intval', 1);
+         $this->assign('p',$p);
         $this->assign('big_menu', $big_menu);
     }
 

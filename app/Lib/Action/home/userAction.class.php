@@ -386,6 +386,12 @@ class userAction extends userbaseAction {
     */
      public function phone_send() {
         $data['phone'] = $this->_post('mobile','trim');
+        $user_mod = D("user");
+        if($user_mod->mobile_exists($data['phone'])){
+            $msg= "手机号已被注册";
+            $this->ajaxReturn(1,  $msg, "123");
+        }
+
         include_once LIB_PATH . 'Pinlib/ChuanglanSmsHelper/ChuanglanSmsApi1.php';
         $clapi  = new ChuanglanSmsApi();
         $code = String::randString(4, 1);
@@ -468,6 +474,9 @@ class userAction extends userbaseAction {
         $url = $data."\n";
         $upyun1->purge($url);
         @ unlink($file);
+        $user['is_avator'] = 1;
+        $user['img_url'] = $data . '?v=' . date('ymd');
+        M('user')->where("id=$uid")->save($user);
         $this->ajaxReturn(1, L('upload_success'), $data);
     }
     /**

@@ -1,8 +1,0 @@
-<volist name="order_list" id="r">
-						<li class="<if condition="$item['cate_id'] eq 8 AND $r['zero_info'] eq '中奖'">zj</if> clearfix">
-							<dt class="jl font-w-b <if condition="$item['cate_id'] eq 8 AND $r['zero_info'] neq '中奖'">fc-2</if>">{$r.uname}</dt>
-							<dt class="sj">{$r.add_time|fdate}</dt>
-							<if condition="$item['cate_id'] eq 8"><dt class="zjhm">{$r.luckdraw_num}</dt></if>
-							<dt class="zt"><if condition="$item['cate_id'] eq 8">{$r.zero_info}<else/><if condition="$r['status'] eq 0">处理中<else/>已完成</if></if></dt>
-						</li>
-						</volist>

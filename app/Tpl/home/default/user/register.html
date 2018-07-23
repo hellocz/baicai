@@ -1,140 +1,280 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-<include file="public:head" />
-<link rel="stylesheet" type="text/css" href="/static/css/default/base.css" />
-<style>
-.onShow, .onFocus, .onError, .onCorrect, .onLoad, .onTime{float:left;}
-.onError{display:block;}
-</style>
-</head>
-
-<body style="background:#f5f5f5">
-<include file="public:header" />
-<div class="w_bl_bd">
-  <div class="w_bl">
-  <h2>注册</h2>
-  <div class="w_dl_bd">
-    <div class="w_dl_lef">
-	<form id="J_register_form" action="{:U('user/register')}" method="post">
-      <ul>
-        <li class="w_dl_l1"><img src="/images/w_dl1.png"/><input type="text" placeholder="用户名/邮箱/手机号" class="w_dl_1" name="username" id="J_username"/></li>
-        <li class="w_dl_l1"><img src="/images/w_dl2.png"/><input type="password" placeholder="设置密码" class="w_dl_1" name="password" id="J_password"/></li>
-        <li class="w_grzc3">
-         <div><font style="font-size:12px;">安全程度：</font><em class="def" >弱</em><em class="def" >中</em><em class="def">强</em></div>
-        </li> 
-        <li class="w_dl_l1" style="margin-top:0px;"><img src="/images/w_dl2.png"/><input type="password" placeholder="确认密码" class="w_dl_1" name="repassword" id="J_repassword"/></li>
-        <li class="w_dl_l1"><img src="/images/w_dl1.png"/><input type="text" placeholder="邮箱" class="w_dl_1" name="email" id="J_email"/></li>
-        <li><input type="text" placeholder="验证码" class="w_dl_2" name="captcha" id="J_captcha"/>
-		<div class="w_yzm"><img src="{:U('captcha/'.time())}" id="J_captcha_img"  alt="{:L('captcha')}" data-url="{:U('captcha/js_rand')}"></div><a href="javascript:;" id="J_captcha_change" class="w_hyz">{:L('change_captcha')}</a></li>
-        <li class="w_grzc7">
-          <span style="margin-left:29px">
-				<input tabindex="1" type="checkbox" value="1" checked="" name="agreement"> 
-          	<label><a href="javascript:;">我已阅读并同意<span style="font-size:12px;" id="J_protocol_btn">《用户注册协议》</span></a></label>
-			</span>
-        </li>
-        <li><input type="submit" id="J_regsub" value="同意协议并注册" class="w_dl_4"/></li>
-      </ul>
-	  </form>
-    </div>
-    <div class="w_dl_rig">
-    已是白菜哦会员 ? 请直接<a href="{:U('user/login')}" title=" 登录"> 登录</a><br/><em></em>
-    </div>
-  </div>
-  </div>
- </div>
-<include file="public:footer" />
-<script src="/static/js/jquery/plugins/formvalidator.js"></script>
-<script src="/static/js/lhg/lhgdialog.min.js?self=true&skin=idialog" type="text/javascript"></script>
-<script src="/js/function.js"></script>
-<script>
-//语言项目
-var lang = {};
-lang.please_input = "请输入";lang.username = "用户名";lang.password = "密码";lang.login_title = "用户登陆";lang.share_title = "我要分享";lang.confirm_unfollow = "确定要取消关注么？";lang.wait = "请稍后......";lang.user_protocol = "网络服务使用协议";lang.email = "邮件地址";lang.email_tip = "请填写正确的常用邮箱，以便找回密码";lang.email_format_error = "邮件格式不正确";lang.email_exists = "电子邮件地址已经被使用";lang.username_tip = "最多20个字符，中文算两个字符";lang.username_exists = "这昵称太热门了，被别人抢走啦，换一个吧";lang.password_tip = "20个字符，数字、字母或者符号";lang.password_too_short = "密码太短啦，至少要6位哦";lang.password_too_long = "密码太长";lang.repassword_tip = "这里要重复输入一次密码";lang.repassword_empty = "请重复输入一次密码";lang.passwords_not_match = "两次输入的密码不一致";lang.captcha_tip = "输入图片中的字符";lang.captcha_empty = "请输入验证码";lang.uploading_cover = "封面上传中，请稍后......";lang.consignee = "收货人";lang.address = "详细地址";lang.mobile = "手机";
-//验证
-$.formValidator.initConfig({formid:'J_register_form',autotip:true});
-$('#J_email').formValidator({onshow:' ',onfocus:lang.email_tip, oncorrect: ' '})
-.inputValidator({min:1,onerror:lang.please_input+lang.email})
-.regexValidator({regexp:'email',datatype:'enum',onerror:lang.email_format_error})
-.ajaxValidator({
-	type: 'get',
-	url: PINER.root + '/?m=user&a=ajax_check',
-	data: 'type=email',
-	datatype: 'json',
-	async:'false',
-	success: function(result){
-		return result.status == '1' ? !0 : !1;
-	},
-	buttons: $('#J_regsub'),
-	onerror: lang.email_exists,
-	onwait : lang.wait
-});
-$('#J_username').formValidator({onshow:' ',onfocus:lang.username_tip, oncorrect: ' '})
-.inputValidator({min:1,onerror:lang.please_input+lang.username})
-.inputValidator({max:20,onerror:lang.username_tip})
-.ajaxValidator({
-	type: 'get',
-	url: PINER.root + '/?m=user&a=ajax_check',
-	data: 'type=username',
-	datatype: 'json',
-	async:'false',
-	success: function(result){
-		return result.status == '1' ? !0 : !1;
-	},
-	buttons: $('#J_regsub'),
-	onerror: lang.username_exists,
-	onwait : lang.wait
-});
-$('#J_password').formValidator({onshow:' ',onfocus:lang.password_tip, oncorrect: ' '})
-.inputValidator({min:6,onerror:lang.password_too_short})
-.inputValidator({max:20,onerror:lang.password_too_long});
-$('#J_repassword').formValidator({onshow:' ',onfocus:lang.repassword_tip, oncorrect: ' '})
-.inputValidator({min:1,onerror:lang.repassword_empty})
-.compareValidator({desid:'J_password',operateor:'=',onerror:lang.passwords_not_match});
-//密码复杂度
-$('#J_password').keyup(function (e)
-{
-    var strongRegex = new RegExp("^(?=.{8,})(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*\W).*$", "g");
-    var mediumRegex = new RegExp("^(?=.{7,})(((?=.*[A-Z])(?=.*[a-z]))|((?=.*[A-Z])(?=.*[0-9]))|((?=.*[a-z])(?=.*[0-9]))).*$", "g");
-    var enoughRegex = new RegExp("(?=.{6,}).*", "g");
-    if (false == enoughRegex.test($(this).val()))
-    {
-        $('.def:eq(0)').addClass('default');
-		$('.def:gt(0)').removeClass('default');
-    }
-    else if (strongRegex.test($(this).val()))
-    {
-        $('.def').addClass('default');
-    }
-    else if (mediumRegex.test($(this).val()))
-    {
-        $('.def:lt(2)').addClass('default');
-		$('.def:eq(2)').removeClass('default');
-    }
-    else
-    {
-        $('.def:eq(0)').addClass('default');
-		$('.def:gt(0)').removeClass('default');
-    }
-    return true;
-}
-);
-
-$('#J_captcha_img').click(function(){
-	var timenow = new Date().getTime(),
-	//url = $(this).attr('data-url').replace(/js_rand/g,timenow);
-	//$(this).attr("src", url);
-	$(this).attr("src","{:U('index/verify_code')}&"+timenow)
-});
-$('#J_captcha_change').click(function(){
-	$('#J_captcha_img').trigger('click');
-});
-//协议
-$('#J_protocol_btn').live('click', function(){
-	var content = $('#J_protocol').html();
-	var dg = new $.dialog({id:'selectorder',title:lang.user_protocol,lock:true,content:content,width:"524px",height:"262px",fixed:true}); 
-});
-</script>
-<div id="J_protocol" class="hide"><pre class="dialog_protocol clr6" style="height:500px; overflow-y:scroll" >{:C('pin_reg_protocol')}</pre></div>
-</body>
-</html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<include file="public:head" />
+
+<link rel="stylesheet" type="text/css" href="/static/css/default/base.css" />
+
+<style>
+
+.onShow, .onFocus, .onError, .onCorrect, .onLoad, .onTime{float:left;}
+
+.onError{display:block;}
+
+</style>
+
+</head>
+
+
+
+<body style="background:#f5f5f5">
+
+<include file="public:header" />
+
+<div class="w_bl_bd">
+
+  <div class="w_bl">
+
+  <h2>注册</h2>
+
+  <div class="w_dl_bd">
+
+    <div class="w_dl_lef">
+
+	<form id="J_register_form" action="{:U('user/register')}" method="post">
+
+      <ul>
+
+        <li class="w_dl_l1"><img src="/images/w_dl1.png"/><input type="text" placeholder="用户名/邮箱/手机号" class="w_dl_1" name="username" id="J_username"/></li>
+
+        <li class="w_dl_l1"><img src="/images/w_dl2.png"/><input type="password" placeholder="设置密码" class="w_dl_1" name="password" id="J_password"/></li>
+
+        <li class="w_grzc3">
+
+         <div><font style="font-size:12px;">安全程度：</font><em class="def" >弱</em><em class="def" >中</em><em class="def">强</em></div>
+
+        </li> 
+
+        <li class="w_dl_l1" style="margin-top:0px;"><img src="/images/w_dl2.png"/><input type="password" placeholder="确认密码" class="w_dl_1" name="repassword" id="J_repassword"/></li>
+
+        <li class="w_dl_l1"><img src="/images/w_dl1.png"/><input type="text" placeholder="邮箱" class="w_dl_1" name="email" id="J_email"/></li>
+
+        <li><input type="text" placeholder="验证码" class="w_dl_2" name="captcha" id="J_captcha"/>
+
+		<div class="w_yzm"><img src="{:U('captcha/'.time())}" id="J_captcha_img"  alt="{:L('captcha')}" data-url="{:U('captcha/js_rand')}"></div><a href="javascript:;" id="J_captcha_change" class="w_hyz">{:L('change_captcha')}</a></li>
+
+        <li class="w_grzc7">
+
+          <span style="margin-left:29px">
+
+				<input tabindex="1" type="checkbox" value="1" checked="" name="agreement"> 
+
+          	<label><a href="javascript:;">我已阅读并同意<span style="font-size:12px;" id="J_protocol_btn">《用户注册协议》</span></a></label>
+
+			</span>
+
+        </li>
+
+        <li><input type="submit" id="J_regsub" value="同意协议并注册" class="w_dl_4"/></li>
+
+      </ul>
+
+	  </form>
+
+    </div>
+
+    <div class="w_dl_rig">
+
+    已是白菜哦会员 ? 请直接<a href="{:U('user/login')}" title=" 登录"> 登录</a><br/><em></em>
+
+    </div>
+
+  </div>
+
+  </div>
+
+ </div>
+
+<include file="public:footer" />
+
+<script src="/static/js/jquery/plugins/formvalidator.js"></script>
+
+<script src="/static/js/lhg/lhgdialog.min.js?self=true&skin=idialog" type="text/javascript"></script>
+
+<script src="/js/function.js"></script>
+
+<script>
+
+//语言项目
+
+var lang = {};
+
+lang.please_input = "请输入";lang.username = "用户名";lang.password = "密码";lang.login_title = "用户登陆";lang.share_title = "我要分享";lang.confirm_unfollow = "确定要取消关注么？";lang.wait = "请稍后......";lang.user_protocol = "网络服务使用协议";lang.email = "邮件地址";lang.email_tip = "请填写正确的常用邮箱，以便找回密码";lang.email_format_error = "邮件格式不正确";lang.email_exists = "电子邮件地址已经被使用";lang.username_tip = "最多20个字符，中文算两个字符";lang.username_exists = "这昵称太热门了，被别人抢走啦，换一个吧";lang.password_tip = "20个字符，数字、字母或者符号";lang.password_too_short = "密码太短啦，至少要6位哦";lang.password_too_long = "密码太长";lang.repassword_tip = "这里要重复输入一次密码";lang.repassword_empty = "请重复输入一次密码";lang.passwords_not_match = "两次输入的密码不一致";lang.captcha_tip = "输入图片中的字符";lang.captcha_empty = "请输入验证码";lang.uploading_cover = "封面上传中，请稍后......";lang.consignee = "收货人";lang.address = "详细地址";lang.mobile = "手机";
+
+//验证
+
+$.formValidator.initConfig({formid:'J_register_form',autotip:true});
+
+$('#J_email').formValidator({onshow:' ',onfocus:lang.email_tip, oncorrect: ' '})
+
+.inputValidator({min:1,onerror:lang.please_input+lang.email})
+
+.regexValidator({regexp:'email',datatype:'enum',onerror:lang.email_format_error})
+
+.ajaxValidator({
+
+	type: 'get',
+
+	url: PINER.root + '/?m=user&a=ajax_check',
+
+	data: 'type=email',
+
+	datatype: 'json',
+
+	async:'false',
+
+	success: function(result){
+
+		return result.status == '1' ? !0 : !1;
+
+	},
+
+	buttons: $('#J_regsub'),
+
+	onerror: lang.email_exists,
+
+	onwait : lang.wait
+
+});
+
+$('#J_username').formValidator({onshow:' ',onfocus:lang.username_tip, oncorrect: ' '})
+
+.inputValidator({min:1,onerror:lang.please_input+lang.username})
+
+.inputValidator({max:20,onerror:lang.username_tip})
+
+.ajaxValidator({
+
+	type: 'get',
+
+	url: PINER.root + '/?m=user&a=ajax_check',
+
+	data: 'type=username',
+
+	datatype: 'json',
+
+	async:'false',
+
+	success: function(result){
+
+		return result.status == '1' ? !0 : !1;
+
+	},
+
+	buttons: $('#J_regsub'),
+
+	onerror: lang.username_exists,
+
+	onwait : lang.wait
+
+});
+
+$('#J_password').formValidator({onshow:' ',onfocus:lang.password_tip, oncorrect: ' '})
+
+.inputValidator({min:6,onerror:lang.password_too_short})
+
+.inputValidator({max:20,onerror:lang.password_too_long});
+
+$('#J_repassword').formValidator({onshow:' ',onfocus:lang.repassword_tip, oncorrect: ' '})
+
+.inputValidator({min:1,onerror:lang.repassword_empty})
+
+.compareValidator({desid:'J_password',operateor:'=',onerror:lang.passwords_not_match});
+
+//密码复杂度
+
+$('#J_password').keyup(function (e)
+
+{
+
+    var strongRegex = new RegExp("^(?=.{8,})(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*\W).*$", "g");
+
+    var mediumRegex = new RegExp("^(?=.{7,})(((?=.*[A-Z])(?=.*[a-z]))|((?=.*[A-Z])(?=.*[0-9]))|((?=.*[a-z])(?=.*[0-9]))).*$", "g");
+
+    var enoughRegex = new RegExp("(?=.{6,}).*", "g");
+
+    if (false == enoughRegex.test($(this).val()))
+
+    {
+
+        $('.def:eq(0)').addClass('default');
+
+		$('.def:gt(0)').removeClass('default');
+
+    }
+
+    else if (strongRegex.test($(this).val()))
+
+    {
+
+        $('.def').addClass('default');
+
+    }
+
+    else if (mediumRegex.test($(this).val()))
+
+    {
+
+        $('.def:lt(2)').addClass('default');
+
+		$('.def:eq(2)').removeClass('default');
+
+    }
+
+    else
+
+    {
+
+        $('.def:eq(0)').addClass('default');
+
+		$('.def:gt(0)').removeClass('default');
+
+    }
+
+    return true;
+
+}
+
+);
+
+
+
+$('#J_captcha_img').click(function(){
+
+	var timenow = new Date().getTime();
+
+	//url = $(this).attr('data-url').replace(/js_rand/g,timenow);
+
+	//$(this).attr("src", url);
+
+	$(this).attr("src","{:U('index/verify_code')}&"+timenow);
+
+});
+
+$('#J_captcha_change').click(function(){
+
+	$('#J_captcha_img').trigger('click');
+
+});
+
+//协议
+
+$('#J_protocol_btn').click(function(){
+
+	var content = $('#J_protocol').html();
+
+	var dg = new $.dialog({id:'selectorder',title:lang.user_protocol,lock:true,content:content,width:"524px",height:"262px",fixed:true}); 
+
+});
+
+</script>
+
+<div id="J_protocol" class="hide"><pre class="dialog_protocol clr6" style="height:500px; overflow-y:scroll" >{:C('pin_reg_protocol')}</pre></div>
+
+</body>
+
+</html>
+

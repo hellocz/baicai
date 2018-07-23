@@ -1,0 +1,42 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<include file="public:head" />
+</head>
+
+<body style="background:#f5f5f5">
+<include file="public:header" />
+<div class="w_bl_bd">
+    <div class="w_zh_dq1">
+	  <a href="/" title="首页">首页</a>><a href="{:U('orig/index')}" title="商城导航">商城导航</a> ><a class="w_zh_dq1_1">{$info.name}</a>
+	</div>
+    <div class="w_scxq_1">
+      <img src="<if condition="$info['img_url']">{:attach($info['img_url'],'item_orig')}<else/>/images/nopic.jpg</if>" title="{$info.name}" alt="{$info.name}"/>
+      <h2>{$info.name}</h2>
+      <p>{$info.intro}</p>
+      <div><span>口碑指数：<i>{$info.kb}</i></span></div>
+      <div><em>商品质量：{$info.fwzl}星</em><em>服务配送：{$info.fwps}星</em><em>客户服务：{$info.khfw}星</em></div>
+    </div>
+    <div class="w_dhxq_h">
+	     <span class="w_dhxq_h_1">折扣商品</span><a href="{:U('tick/orig',array('id'=>$info['id']))}"><span>可用优惠劵</span></a>      
+	   </div>
+    <div class="w_dhxx">
+      <ul>
+	  <volist name="list" id="item">
+        <li>
+             <a href="{:U('item/index',array('id'=>$item['id']))}" title="{$item['title']}"><img src="{$item.img}" title="{$item['title']}" alt="{$item['title']}"/></a>
+             <h2><a href="{:U('item/index',array('id'=>$item['id']))} " title="{$item['title']}">{$item['title']|iconv_substr=0,72}<br/><em>{$item['otitle']}</em></a></h2>
+             
+             <div class="w_nr3_div">
+              <a href="{$item.url}" target="_blank" title="直达链接" class="w_dj211">直达链接</a>
+              <div class="w_f2nr1_le"><a href="" title="" class="w_z_1">{$item.zan}</a><a href="" title=""  class="w_z_2">{$item.likes}</a><a href="" title=""  class="w_z_3">{$item.comments}</a></div>
+             </div>
+           </li>
+	  </volist>
+      </ul>
+	  <div class="w_pag" id="J_wall_page">{$page_bar}</div>
+    </div>   
+</div>
+<include file="public:footer" />
+</body>
+</html>

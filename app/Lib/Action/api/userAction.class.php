@@ -153,13 +153,11 @@ class userAction extends userbaseAction
     public function smscode($data) {
         //$code = '123456';
 
-        if($data['type'] == "register"){
              $count = M('user')->where(['mobile'=>$data['mobile']])->count('id');
              if($count >0) {
                    echo get_result(20001, [], "手机号码已经被注册!");
                    return;
              }
-        }
         $code = rand('100000','999999');
         $msg = "您的短信验证码为".$code;
         file_get_contents("http://sms.253.com/msg/send?un=N2204759&pw=1w0Xqu5xC&phone=".$data['mobile']."&msg=$msg&rd=0");
@@ -1350,6 +1348,9 @@ class userAction extends userbaseAction
         $ed = strtotime(date('Y-m-d',strtotime('+1 day')));
         //查询当天评论次数
         $num = M("comment")->where("uid=".$data['userid']." and add_time>$st and add_time<$ed ")->count();
+        if(!(D("user")->phone_binded($data['userid']))){
+            echo get_result(10002,[],'请先绑定手机号,再评论!');return ;
+        }
         if($num>49){
             echo get_result(10001,'您今天评论的次数已达上限');return ;
         }

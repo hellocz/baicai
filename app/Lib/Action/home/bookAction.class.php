@@ -548,7 +548,7 @@ class bookAction extends frontendAction {
             $min_price && $where['price'][] = array('egt', $min_price);
             $max_price && $where['price'][] = array('elt', $max_price); //价格
 
-            array_push($cate_relate[$cid]['sids'], $cid);
+            array_push($cate_relate[$cid]['sids'], strval($cid));
             $where['cate_id'] = array('in', $cate_relate[$cid]['sids']); //分类
             $this->wall_ajax($where, $order);
         } else {

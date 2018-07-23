@@ -58,10 +58,11 @@
     float: left;
     height: 33px;
     padding-left: 5px;
-    width: 203px;
+    width: 200px;
     border-radius: 0px;
 }
 .sq_btn{
+    width: calc(100% - 209px);
     height: 37px;
     overflow: hidden;
     padding: 7px 30px;
@@ -70,7 +71,7 @@
     color: white;
     cursor: pointer;
     display: inline-block;
-    float: right;
+    float: left;
     letter-spacing: 2px;
     line-height: 21px;
     border-radius: 0px;
@@ -155,7 +156,42 @@
 <div class="w_center">
   <div class="w_cen_lef">
        <div class="w_sy_f1">
-      {:R('advert/index', array(17), 'Widget')} 
+        <?php   
+        $time_now = time();
+        $map['board_id'] = '17';
+        $map['start_time'] = array('elt', $time_now);
+        $map['end_time'] = array('egt', $time_now);
+        $map['status'] = '1';
+  $adv_list = M("ad")->where($map)->select(); $advCount = M("ad")->where($map)->count(); ?>
+  <if condition="$advCount lt 2">
+    {:R('advert/index', array(17), 'Widget')}
+    <else/>
+  <div id="slideBox" class="slideBox">
+    <div class="hd">
+        <ul>
+        <?php
+            $html='';
+            for($i=0;$i<$advCount;$i++){
+                                                            $j=$i+1;
+                $html.="<li>".$j."</li>";
+            }
+            echo $html;
+        ?>
+        </ul>
+    </div>
+    <div class="bd">
+        <ul>
+        <?php
+            $htmlA='';
+            for($j=0;$j<=$advCount;$j++){   
+                 $htmlA.="<li><a href='".$adv_list[$j][url]."' target='_blank' alt='".$adv_list[$j][name]."'><img src='".$adv_list[$j][content]."' /></a></li>";
+            }
+            echo $htmlA;
+         ?>
+        </ul>
+    </div>
+</div>
+</if>
       <!--    <div id="slideBox" class="slideBox">
 <?php   
         $time_now = time();
@@ -329,11 +365,11 @@
 
               </div>
     </div>
-
+<!--
     <div class="w_rq" style="display: block;">
         <img src="/images/xiami.png">
     </div>
-
+-->
     <div class="w_r3">
        <h2>积分排名</h2>
        <div class="w_r3_1"><span class="w_r3_1_bd" id="tt1" onmouseover="setTab('tt',1,3,'w_r3_1_bd')">今日排名</span><span  id="tt2" onmouseover="setTab('tt',2,3,'w_r3_1_bd')">当月排名</span><span  id="tt3" onmouseover="setTab('tt',3,3,'w_r3_1_bd')">全部排名</span></div>
@@ -415,7 +451,13 @@
 
 //$('.w_r_tab').scrollFix(60,"top");
    //     $('.w_r7').scrollFix(480,"top");
-        $('.w_r7').scrollFix(60,"top");
+        $('.w_r7').scrollFix(60,"top");00
+
+        $(".art-qrcode").hover(
+          function(){
+          ($(this).find(".verify_img").attr("src") === undefined) && $(this).find(".verify_img").attr("src","{:U('index/qrcode')}" + "?url=" + $(this).find(".verify_img").attr("data-url"));
+       });
+
         });
 </script>
 <script type="text/javascript">

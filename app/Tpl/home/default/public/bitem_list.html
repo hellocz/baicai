@@ -159,13 +159,13 @@
                                    <div class="imageContainer">
                                       <a href="{:U('bitem/index',array('id'=>$r['id'],'isbao'=>1))}" title="{$r.title}" target="_blank"><img src="<if condition="$r['img']==''">/images/nopic.jpg<else/>{:attach($r['img'],'item')}!newthumb</if>" title="{$r.title}" alt="{$r.title}"/></a>
                                   </div>
-                                 <a class="itemStore"  href="{:U('orig/show',array('id'=>$r['orig_id']))}" title="{:getly($r['orig_id'])}">{:getly($r['orig_id'])}</a>
+                                 <a class="itemStore"  href="{:U('orig/show',array('id'=>$r['orig_id']))}" title="{$r['orig_name']}">{$r['orig_name']}</a>
                                  <a class="itemTitle" href="{:U('bitem/index',array('id'=>$r['id'],'isbao'=>1))}" title="{$r.title}" target="_blank">{$r.title}<em style="color:red;">{$r.price}</em></a>
                                 </div>
                          </div>
 	                 <div class="itemInfoLine">
                              <div class="avatarBox">
-                                   <img src="{:avatar($r['uid'],'')}" title="{$r.uname}" alt="{$r.uname}" class="ava"/>
+                                   
                              </div>
 			       <div class="itemPrice  ">{$r['add_time']|mdate}</div>
                           </div>
@@ -173,17 +173,7 @@
                                 <div class="likes">
                                   <div class="w_f2nr1_le"><a href="javascript:void(0)" onclick="jz_submit_click(this)" title="赞" class="w_z_1 Jz_submit" data="{$r.id}"  data-t="item_diu">{$r.zan}</a></div>
                                 </div>
-                               
-
-        				<?php $llink = unserialize($r['go_link']);$lc = count($llink);?>
-
-        				<volist name="llink" id="rm" key="j">
-
-            			           <if condition="$j eq 1"><a   <if condition="$r['orig_id'] eq 3"> isconvert="1" href="{$rm['link']}"<else/> href="__ROOT__/?m=item&a=tgo&to={:shortUrl($rm['link'])}" </if> title="{$rm.title}"  target="_blank" rel="nofollow" > <div class="comments">{$rm.name}</div></a>
-                             </if>
-
-        				</volist>
-
+                                <a   <if condition="($r['orig_id'] eq 3)"> isconvert="1" href="{$r['url']}"<else/> href="__ROOT__/?m=item&a=tgo&to={$r['go_url']}" </if> title="{$rm.title}" class="w_zdlj_a" target="_blank" rel="nofollow" ><div class="comments">直达链接</div></a>
         				
 
                             </div>

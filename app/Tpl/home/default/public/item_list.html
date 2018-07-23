@@ -63,7 +63,7 @@
       </a>
       <div class="pop-qrc" style="display:none">
         <i class="tria"  ></i>
-        <img title="" class="verify_img" src="{:U('index/qrcode', array('url'=>urlencode($rm['link'])))}" />
+        <img title="" class="verify_img" data-url={:urlencode($rm['link'])} />
       </div>
     </div>
   </if>
@@ -185,8 +185,8 @@
 
 				 }
 
-			 })
-
+			 });
+        
 
         }) 
 

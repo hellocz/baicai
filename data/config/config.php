@@ -11,4 +11,8 @@ return array(
     'DATA_PATH_LEVEL'=>3, //缓存文件夹层级
     'LOAD_EXT_CONFIG' => 'url,db', //扩展配置    
     'SHOW_PAGE_TRACE' => false,
+    'CRON_CONFIG_ON' => true, // 是否开启自动运行 
+    'CRON_CONFIG' => array( 
+        '测试执行定时任务' => array('home/cron/crons', '5', ''), //路径(格式同R)、间隔秒（0为一直运行）、指定一个开始时间 
+    ),
 );

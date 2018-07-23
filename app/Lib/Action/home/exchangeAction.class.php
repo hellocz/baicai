@@ -44,7 +44,7 @@ class exchangeAction extends frontendAction {
      * 抽奖页面
      */
     public function lucky() {
-        $num = $this->_get('num', 'intval');
+        $cid = $this->_get('cid', 'intval');
         $sort = $this->_get('sort', 'trim', 'new');
         //排序：最热(hot)，最新(new)
         switch ($sort) {

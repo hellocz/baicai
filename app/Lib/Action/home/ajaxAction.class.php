@@ -87,11 +87,11 @@ class ajaxAction extends frontendAction {
 		$last_comment = M("comment")->where("uid=".$this->visitor->info['id'])->order("add_time desc")->find();
 		$last_comment['add_time']=intval($last_comment['add_time'])+30;
 
+		if(!(D("user")->phone_binded($this->visitor->info['id']))){
+			$this->ajaxReturn(0, '请先绑定手机号,再评论!');
+		}
 		if(time() < $last_comment['add_time']){
 			$this->ajaxReturn(0, '评论需间隔30秒,请不要灌水哦!');
-		}
-		if($num>49){
-			$this->ajaxReturn(0, '您今天评论的次数已达上限');
 		}
         $data = array();
 		$data['xid'] = $this->_post('xid','intval');
@@ -120,6 +120,10 @@ class ajaxAction extends frontendAction {
         }
         $data['info'] = $check_result['content'];
         $data['uid'] = $this->visitor->info['id'];
+        $vuser = M("user")->where("id=" . $data['uid'])->find();
+        if(empty($vuser)){
+        	$this->ajaxReturn(0,'您无权发表言论');
+        }
         $data['uname'] = $this->visitor->info['username'];
 		$data['add_time'] = time();
         //验证评论对象

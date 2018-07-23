@@ -323,7 +323,7 @@
 
                     </if>
 
-                    <a href="{:u('item/edit', array('id'=>$val['id'], 'menuid'=>$menuid))}">审核</a> | <a href="javascript:void(0);" class="J_confirmurl" data-uri="{:u('item/delete', array('id'=>$val['id']))}" data-acttype="ajax" data-msg="{:sprintf(L('confirm_delete_one'),$val['title'])}">{:L('delete')}</a></td>
+                    <if condition="$val.uname eq '小白白'"><a href="javascript:void(0);" class="J_confirmurl" data-uri="{:u('item/delete_monitor', array('id'=>$val['id']))}" data-acttype="ajax" data-msg="确定要删除此条价格监控数据么?">删除监控</a> | </if><a href="{:u('item/edit', array('id'=>$val['id'], 'menuid'=>$menuid))}">审核</a> | <a href="javascript:void(0);" class="J_confirmurl" data-uri="{:u('item/delete', array('id'=>$val['id']))}" data-acttype="ajax" data-msg="{:sprintf(L('confirm_delete_one'),$val['title'])}">{:L('delete')}</a></td>
 
             </tr>
 

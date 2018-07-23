@@ -43,6 +43,25 @@ class itemAction extends backendAction {
             }
     }
 
+    public function delete_monitor(){
+        $id = $this->_get('id', 'intval');
+        !$id && $this->_404();
+        //donothing;
+        $item = $this->_mod->where(array('id'=>$id))->find();
+        if(empty($item)){
+             IS_AJAX && $this->ajaxReturn(0, L('operation_failure'));
+                $this->error(L('operation_failure'));
+        }
+        $status = M("item_monitor")->where(array('img'=>$item['img']))->delete();
+        if ($status == 1) {
+                IS_AJAX && $this->ajaxReturn(1, L('operation_success'));
+                $this->success(L('operation_success'));
+            }else {
+                IS_AJAX && $this->ajaxReturn(0, "未找到对应监控数据");
+                $this->error(L('operation_failure'));
+            }
+    }
+
     public function add_activity(){
         $this->assign('open_validator', true);
             if (IS_AJAX) {
@@ -995,12 +1014,14 @@ class itemAction extends backendAction {
             if(empty($data['img'])){
                 $data['img'] = $item_img;
             }
-            preg_match("/￥(\d+\.?\d+)/", $data['price'],$match_prices);
+            preg_match("/(\d+\.?\d+)元/", $data['price'],$match_prices);
             $data['pure_price'] = floatval($match_prices[1]);
 
           //  file_put_contents($file_name, 'img123'.$data['img'].'img123', FILE_APPEND);
             $this->_mod->where(array('id'=>$item_id))->save($data);
             //更新索引
+
+            //$this->create_monitor($data);
             
              require LIB_PATH . 'Pinlib/php/lib/XS.php';
              $xs = new XS('baicai');
@@ -1017,6 +1038,7 @@ class itemAction extends backendAction {
             else{
                 $index->del($data['id']);
             }
+            
              if($_POST['article_list']){
                 $vote = M("vote")->where(array('item_id'=>$item_id))->find();
                 if($vote){
@@ -1139,7 +1161,23 @@ class itemAction extends backendAction {
         }
     }
     function nine(){
-        $this->display();
+         $this->display();
+    }
+
+    function xunsearch_update(){
+        $begin = $this->_get('begin', 'intval');
+        $length  = 100;
+        $item_list = M("item")->where("status = 1 ")->order("add_time desc")->limit($begin * $length , $length)->select();
+        require LIB_PATH . 'Pinlib/php/lib/XS.php';
+             $xs = new XS('baicai');
+             $index = $xs->index; 
+             $doc = new XSDocument;  
+             foreach ($item_list as $item) {
+                $doc->setFields($item);
+                $index->update($doc); 
+             }
+             echo count($item_list);
+            //更新到索引数据库中  
     }
     function  nine_instal(){
         ini_set('max_execution_time', 0);
@@ -1212,6 +1250,116 @@ class itemAction extends backendAction {
         }
         echo '1';
         exit;
+    }
+
+    function create_monitor($data){
+        if($data['status'] != 1 || $data['orig_id'] == 0 || $data['title'] =="" || $data['pure_price'] == 0 || strpos($data['title'],"*")!== false ){
+            return ;
+        }
+        $goods_info = $this->getgoods_info($data['url'],$data['orig_id']);
+        if($goods_info == ""){
+            return;
+        }
+        $goods_item = M("item_monitor")->where(array("orig_id"=>$data['orig_id'],"goods_id"=>$goods_info['goods_id']))->find();
+        if(!$goods_item){
+        $monitor_goods['cate_id'] = $data['cate_id'];
+        $monitor_goods['orig_id'] = $data['orig_id'];
+        $monitor_goods['goods_id'] = $goods_info['goods_id'];
+        $monitor_goods['title'] = $data['title'];
+        $monitor_goods['img'] = $data['img'];
+        $monitor_goods['price'] = $data['price'];
+        $monitor_goods['pure_price'] = $data['pure_price'];
+        $monitor_goods['url'] = $goods_info['url'];
+        $monitor_goods['tag_cache'] = $data['tag_cache'];
+        $monitor_goods['content'] = $data['content'];
+        $monitor_goods['go_link'] = $data['go_link'];
+        $monitor_goods['ispost'] = $data['ispost'];
+        M("item_monitor")->add($monitor_goods);
+        }
+
+        $price_item = M("price_history")->where(array("orig_id"=>$data['orig_id'],"goods_id"=>$goods_info['goods_id']))->find();
+
+        if($price_item){
+
+        }
+        else{
+            $price_list = $this->get_price_history_list($goods_info['url']);
+            foreach ($price_list as $price) {
+                $price_item['orig_id'] = $data['orig_id'];
+                $price_item['price'] = $price['price'];
+                $price_item['time'] = strtotime($price['time']);
+                $price_item['goods_id'] = $goods_info['goods_id'];
+                M("price_history")->add($price_item);
+            }
+        }
+        
+    }
+
+    function getgoods_info($url,$orig_id){
+        switch ($orig_id){
+        case 358:
+         preg_match("/(\d+)\.html/", $url,$match_id);
+         if(empty($match_id[1])){
+                return "";
+            }
+            return array("goods_id"=>$match_id[1],"url"=>"https://item.jd.com/" . $match_id[1] . ".html");
+        }
+        return "";
+    }
+
+    function get_price_history_list($product_url){
+        $url ="http://www.178hui.com/?mod=ajax&act=historyPrice&url=" . urlencode($product_url);
+        $method = "GET";
+        $postfields =null;
+        $headers = array();
+        $debug = false;
+
+        $cookie ="userlogininfo=9d49ymMSBwxdbhZg3HWuylexWMKQV%2FoA%2BhSG7gtoVbsQGNTdK2J1Mfa563sGdX76VPIpuhD348%2FdOXdqxr0bo8FPBocoBMK6F0zF9yHkch1OEKuCEx0WKyIsw%2B7BskRzfwvD7g8SD6%2Bp1t4TPzV6VPRdmW5Qsw4aivW1jZm8YZnbl6tLsOFtBGJDcOX1yBA";
+
+        $ci = curl_init();
+        /* Curl settings */
+        curl_setopt($ci, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
+        curl_setopt($ci, CURLOPT_CONNECTTIMEOUT, 30);
+        curl_setopt($ci, CURLOPT_SSL_VERIFYPEER, FALSE);
+        curl_setopt($ci, CURLOPT_SSL_VERIFYHOST, FALSE);
+        curl_setopt($ci, CURLOPT_TIMEOUT, 30);
+        curl_setopt($ci, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ci, CURLOPT_COOKIE, $cookie);
+
+        switch ($method) {
+        case 'POST':
+        curl_setopt($ci, CURLOPT_POST, true);
+        if (!empty($postfields)) {
+        curl_setopt($ci, CURLOPT_POSTFIELDS, $postfields);
+        $this->postdata = $postfields;
+        }
+        break;
+        }
+        curl_setopt($ci, CURLOPT_URL, $url);
+        curl_setopt($ci, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ci, CURLINFO_HEADER_OUT, true);
+
+        $response = curl_exec($ci);
+        $http_code = curl_getinfo($ci, CURLINFO_HTTP_CODE);
+
+        if ($debug) {
+
+        echo '=====info=====' . "\r\n";
+        print_r(curl_getinfo($ci));
+
+        echo '=====$response=====' . "\r\n";
+        print_r($response);
+        }
+        curl_close($ci);
+        $json_result = json_decode($response, TRUE);
+        if($json_result['code'] == 100){
+            var_dump($json_result);
+         return $json_result['priceHistoryData']['priceList'];
+    }
+    else{
+        return null;
+    }
+       
     }
 
 
@@ -1628,6 +1776,9 @@ class itemAction extends backendAction {
             $uland_params_url = parse_url($url);
           parse_str($uland_params_url['query'],$uland_url);
           $e = $uland_url['e'];
+          if(!$e){
+            $e = $uland_url['me'];
+          }
           if($e){
             $applinzi_parse_url = "http://1.alimama.applinzi.com/getCouponParm.php?appkey=4799843&e={$e}";
             $applinzi_parse_data = $this->http($applinzi_parse_url);
@@ -1641,7 +1792,7 @@ class itemAction extends backendAction {
                  if($applinzi_high_data[0] == 200)
                 {
                 $applinzi_high_result = json_decode($applinzi_high_data[1], TRUE);
-                $result['convert_url'] = $applinzi_high_result['result']['data']['coupon_click_url'];
+                $result['convert_url'] = $applinzi_high_result['result']['coupon_click_url'];
                 }
             }
           }
@@ -1817,11 +1968,15 @@ class itemAction extends backendAction {
            }
            
         }elseif (strcmp($host,'uland.taobao.com')==0){
-            $result['id'] =3;
+          /*  $result['id'] =3;
             $uland_params_url = parse_url($url);
           parse_str($uland_params_url['query'],$uland_url);
           $e = $uland_url['e'];
+          if(!$e){
+            $e = $uland_url['me'];
+          }
           if($e){
+            
             $applinzi_parse_url = "http://1.alimama.applinzi.com/getCouponParm.php?appkey=4799843&e={$e}";
             $applinzi_parse_data = $this->http($applinzi_parse_url);
             if($applinzi_parse_data[0] == 200)
@@ -1834,14 +1989,14 @@ class itemAction extends backendAction {
                  if($applinzi_high_data[0] == 200)
                 {
                 $applinzi_high_result = json_decode($applinzi_high_data[1], TRUE);
-                $result['convert_url'] = $applinzi_high_result['result']['data']['coupon_click_url'];
+                $result['convert_url'] = $applinzi_high_result['result']['coupon_click_url'];
                 }
             }
           }
           else{
              $result['convert_url'] =  $url;
           }
-          /*
+          */
             $parsed_orig_url = parse_url($url);
              parse_str($parsed_orig_url['query'],$parsed_orig_query);
              if(isset($parsed_orig_query['activityId']) &&isset($parsed_orig_query['itemId']) ){
@@ -1850,7 +2005,7 @@ class itemAction extends backendAction {
              else{
                   $result['convert_url'] =  $url;
              }
-             */
+             
         }
          elseif (strcmp($host,'www.kaixinbao.com')==0 || strcmp($host,'u.kaixinbao.com')==0){
             $result['id'] =942;
