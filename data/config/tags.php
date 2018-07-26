@@ -10,7 +10,6 @@ return array(
     'app_begin' => array(
         'check_ipban', //禁止IP
         'load_lang', //语言
-        'cronRun',
     ),
     'view_template' => array(
         'basic_template','_overlay'=>1, //自动定位模板文件

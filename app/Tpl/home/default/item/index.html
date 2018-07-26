@@ -104,6 +104,9 @@
             </notempty>
 	  <div class="content">
 		{$item.content}
+    <if condition="$chart_data != null ">
+<div id="container" style="min-width:400px;height:400px;"></div>
+</if>
     <p style="font-size:14px;">更多好价请点击：<a style="font-size:14px;" href="{:U('orig/show',array('id'=>$item['orig_id']))}" title="{:getly($item['orig_id'])}" target="_blank" style="margin-left:10px;">{:getly($item['orig_id'])}优惠&nbsp;&nbsp;</a> <a style="font-size:14px;" href="{:U('book/cate',array('cid'=>$item['cate_id']))}" target="_blank" title="{$cate_info.name}" style="margin-left:10px;">{$cate_info.name}优惠&nbsp;&nbsp;</a> <volist name="item['tag_list']" id="tag">
     <a style="font-size:14px;" href="{:U('book/index', array('tag'=>urlencode($tag)))}" target="_blank">{$tag}推荐&nbsp;&nbsp;</a>
     </volist><notempty name="brand"><a style="font-size:14px;" href="{:U('brand/show',array('id'=>$brand['id']))}" title="{$item.title}"  target="_blank" >{$brand.chn_name}品牌推荐&nbsp;&nbsp;</a></notempty>
@@ -360,6 +363,7 @@ $(document).ready(function() {
      <s></s>
    </div>
 <script src="/js/qrcode.js"></script>
+<script src="/js/highcharts.js"></script>
 <script>
 $(document).ready(function(e) {
  $(".w_sjsm").hover(
@@ -383,8 +387,39 @@ $(document).ready(function(e) {
           },
           function(){
             $(this).find(".pop-qrc").hide();
-          }) 
+          });
 
+var chart_data = '{$chart_data}';
+if(chart_data != ""){
+ chart_data_json =  JSON.parse('{$chart_data}');
+   var options = {
+    credits: {
+      text: '白菜哦',
+      href: 'http://www.baicaio.com',
+      style: {                            // 样式设置
+        cursor: 'pointer',
+        color: '#3dc399',
+        fontSize: '14px'
+      }
+    },
+  title: {
+    text: '历史价格'                 // 标题
+  },
+  xAxis: {
+           categories: chart_data_json.x
+        },
+  yAxis: {
+    title: {
+      text: '价格'                // y 轴标题
+    }
+  },
+  series: [{                              // 数据列
+    name: '价格',                        // 数据列名
+    data: chart_data_json.y                     // 数据
+  }]
+};
+var chart = Highcharts.chart('container', options);
+}
 }) 
 window.onload =function(){
 	var qrcode = new QRCode(document.getElementById("qrcode"), {

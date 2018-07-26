@@ -1021,9 +1021,9 @@ class itemAction extends backendAction {
             $this->_mod->where(array('id'=>$item_id))->save($data);
             //更新索引
 
-            //$this->create_monitor($data);
-            
-             require LIB_PATH . 'Pinlib/php/lib/XS.php';
+            D("item_monitor")->create_monitor($data);
+
+              require LIB_PATH . 'Pinlib/php/lib/XS.php';
              $xs = new XS('baicai');
              $index = $xs->index; 
 
@@ -1038,6 +1038,7 @@ class itemAction extends backendAction {
             else{
                 $index->del($data['id']);
             }
+            
             
              if($_POST['article_list']){
                 $vote = M("vote")->where(array('item_id'=>$item_id))->find();
@@ -1115,6 +1116,13 @@ class itemAction extends backendAction {
             $activity_list = M("item_activity")->where(array('item_id'=>$id))->select();
             foreach ($activity_list as $key => $value) {
                 $activity_list[$key]['name'] = get_activityname($activity_list[$key]['activity_id']);
+            }
+            $goods_info = getgoods_info($item['url'],$item['orig_id']);
+            if($goods_info != ""){
+                $item_monitor = D("item_monitor")->where(array("orig_id"=>$item['orig_id'],"goods_id"=>$goods_info['goods_id']))->find();
+                if(!empty($item_monitor)){
+                    $this->assign("item_monitor",$item_monitor);
+                }
             }
             $vote =M("vote")->where(array('item_id'=>$id))->find();
             $this->assign('article_list', $vote['article_list']);
@@ -1252,48 +1260,7 @@ class itemAction extends backendAction {
         exit;
     }
 
-    function create_monitor($data){
-        if($data['status'] != 1 || $data['orig_id'] == 0 || $data['title'] =="" || $data['pure_price'] == 0 || strpos($data['title'],"*")!== false ){
-            return ;
-        }
-        $goods_info = $this->getgoods_info($data['url'],$data['orig_id']);
-        if($goods_info == ""){
-            return;
-        }
-        $goods_item = M("item_monitor")->where(array("orig_id"=>$data['orig_id'],"goods_id"=>$goods_info['goods_id']))->find();
-        if(!$goods_item){
-        $monitor_goods['cate_id'] = $data['cate_id'];
-        $monitor_goods['orig_id'] = $data['orig_id'];
-        $monitor_goods['goods_id'] = $goods_info['goods_id'];
-        $monitor_goods['title'] = $data['title'];
-        $monitor_goods['img'] = $data['img'];
-        $monitor_goods['price'] = $data['price'];
-        $monitor_goods['pure_price'] = $data['pure_price'];
-        $monitor_goods['url'] = $goods_info['url'];
-        $monitor_goods['tag_cache'] = $data['tag_cache'];
-        $monitor_goods['content'] = $data['content'];
-        $monitor_goods['go_link'] = $data['go_link'];
-        $monitor_goods['ispost'] = $data['ispost'];
-        M("item_monitor")->add($monitor_goods);
-        }
 
-        $price_item = M("price_history")->where(array("orig_id"=>$data['orig_id'],"goods_id"=>$goods_info['goods_id']))->find();
-
-        if($price_item){
-
-        }
-        else{
-            $price_list = $this->get_price_history_list($goods_info['url']);
-            foreach ($price_list as $price) {
-                $price_item['orig_id'] = $data['orig_id'];
-                $price_item['price'] = $price['price'];
-                $price_item['time'] = strtotime($price['time']);
-                $price_item['goods_id'] = $goods_info['goods_id'];
-                M("price_history")->add($price_item);
-            }
-        }
-        
-    }
 
     function getgoods_info($url,$orig_id){
         switch ($orig_id){
@@ -1307,60 +1274,7 @@ class itemAction extends backendAction {
         return "";
     }
 
-    function get_price_history_list($product_url){
-        $url ="http://www.178hui.com/?mod=ajax&act=historyPrice&url=" . urlencode($product_url);
-        $method = "GET";
-        $postfields =null;
-        $headers = array();
-        $debug = false;
-
-        $cookie ="userlogininfo=9d49ymMSBwxdbhZg3HWuylexWMKQV%2FoA%2BhSG7gtoVbsQGNTdK2J1Mfa563sGdX76VPIpuhD348%2FdOXdqxr0bo8FPBocoBMK6F0zF9yHkch1OEKuCEx0WKyIsw%2B7BskRzfwvD7g8SD6%2Bp1t4TPzV6VPRdmW5Qsw4aivW1jZm8YZnbl6tLsOFtBGJDcOX1yBA";
-
-        $ci = curl_init();
-        /* Curl settings */
-        curl_setopt($ci, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
-        curl_setopt($ci, CURLOPT_CONNECTTIMEOUT, 30);
-        curl_setopt($ci, CURLOPT_SSL_VERIFYPEER, FALSE);
-        curl_setopt($ci, CURLOPT_SSL_VERIFYHOST, FALSE);
-        curl_setopt($ci, CURLOPT_TIMEOUT, 30);
-        curl_setopt($ci, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ci, CURLOPT_COOKIE, $cookie);
-
-        switch ($method) {
-        case 'POST':
-        curl_setopt($ci, CURLOPT_POST, true);
-        if (!empty($postfields)) {
-        curl_setopt($ci, CURLOPT_POSTFIELDS, $postfields);
-        $this->postdata = $postfields;
-        }
-        break;
-        }
-        curl_setopt($ci, CURLOPT_URL, $url);
-        curl_setopt($ci, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ci, CURLINFO_HEADER_OUT, true);
-
-        $response = curl_exec($ci);
-        $http_code = curl_getinfo($ci, CURLINFO_HTTP_CODE);
-
-        if ($debug) {
-
-        echo '=====info=====' . "\r\n";
-        print_r(curl_getinfo($ci));
-
-        echo '=====$response=====' . "\r\n";
-        print_r($response);
-        }
-        curl_close($ci);
-        $json_result = json_decode($response, TRUE);
-        if($json_result['code'] == 100){
-            var_dump($json_result);
-         return $json_result['priceHistoryData']['priceList'];
-    }
-    else{
-        return null;
-    }
-       
-    }
+    
 
 
     function delete_attr() {
@@ -2252,6 +2166,21 @@ class itemAction extends backendAction {
 			$this->error('数据写入错误！');
 		}
 	}
+
+    function monitor_price_modify(){
+        $monitor = D("item_monitor");
+        $id = $this->_get("id");
+        $bottom_price = $this->_get("price");
+        if ($id) {
+            if ($monitor->update_price_by_id($id,$bottom_price)) {
+                $this->ajaxReturn(1, L('operation_success'));
+            } else {
+                $this->ajaxReturn(0, L('operation_failure'));
+            }
+        } else {
+            $this->ajaxReturn(0, L('illegal_parameters'));
+        }
+    }
     public function http($url, $method, $postfields = null, $headers = array(), $debug = false)
 {
 $ci = curl_init();

@@ -136,7 +136,11 @@
 
 				<th>商品价格 :</th>
 
-				<td><input type="text" name="price" id="price" size="50" class="input-text" value="{$info.price}"> </td>
+				<td><input type="text" name="price" id="price" size="50" class="input-text" value="{$info.price}">
+				<if condition="$item_monitor.bottom_price" >监测价格:<input type="text" name="bottom_price" id="bottom_price" size="10" class="input-text" value="{$item_monitor.bottom_price}">
+					<input type="button" value="修改监测价格" id="J_monitor_modify" name="tags_btn" class="btn">
+					<input type="hidden" value="{$item_monitor.id}" id="monitor_id">
+				</if> </td>
 
 			</tr>
 
@@ -555,6 +559,8 @@
 
 	$(function(){
 
+		
+
 		$("#bccg").click(function(){
 
 			$("#statusA").val('2');	
@@ -662,7 +668,18 @@ $('.activitys').live('click',function(){
 
 		});
 	
-})
+});
+$("#J_monitor_modify").live('click',function(){
+		var monitor_id = $("#monitor_id").val();
+		var price = $("#bottom_price").val();
+			$.getJSON('{:U("item/monitor_price_modify")}', {id:monitor_id,price:price}, function(result){
+			if(result.status == 1){
+				$.pinphp.tip({content:"修改成功"});
+			}else{
+				$.pinphp.tip({content:"修改失败"});
+			}
+		});
+		});
 
 $(function() {
 

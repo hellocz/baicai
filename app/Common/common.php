@@ -605,4 +605,15 @@ function get_result($state = 10001, $data , $msg="请求成功"){
    ];
     return json_encode($result);
 }
+function getgoods_info($url,$orig_id){
+        switch ($orig_id){
+        case 358:
+         preg_match("/(\d+)\.html/", $url,$match_id);
+         if(empty($match_id[1])){
+                return "";
+            }
+            return array("goods_id"=>$match_id[1],"url"=>"https://item.jd.com/" . $match_id[1] . ".html");
+        }
+        return "";
+    }
 ?>
