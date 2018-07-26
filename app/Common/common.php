@@ -259,16 +259,17 @@ function fpubdate($time) {
  * 获取用户头像
  */
 function avatar($uid, $size) {
-    $avatar_size = explode(',', C('pin_avatar_size'));
+	  $avatar_size = explode(',', C('pin_avatar_size'));
     $size = in_array($size, $avatar_size) ? $size : '100';
     $avatar_dir = avatar_dir($uid);
-    //$avatar_file = $avatar_dir . md5($uid) . "_{$size}.jpg";
-    $avatar_file = $avatar_dir . md5($uid) . ".jpg";
-    if (!fopen(IMG_ROOT_PATH . '/' . C('pin_attach_path') . 'avatar/' . $avatar_file,"r")) {
-        $avatar_file = "default_{$size}.jpg";
-		return __ROOT__.'/' . C('pin_attach_path') . 'avatar/' . $avatar_file;
+    $user = M("user")->where(array('id'=>$uid))->find();
+    if($user['is_avator'] == 1){
+    	return $user['img_url'];
     }
-    return IMG_ROOT_PATH . '/' . C('pin_attach_path') . 'avatar/' . $avatar_file;
+    else{
+    	$avatar_file = "default_{$size}.jpg";
+    	return __ROOT__.'/' . C('pin_attach_path') . 'avatar/' . $avatar_file;
+    }
 }
 
 function avatar_dir($uid) {

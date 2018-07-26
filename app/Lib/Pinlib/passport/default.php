@@ -84,7 +84,11 @@ class default_passport
      */
     public function auth($username, $password) {
         //$uid = M('user')->where(array('username'=>$username, 'password'=>md5($password)))->getField('id');
-		$user = M('user')->where(array('username'=>$username,'email'=>$username,'_logic'=>'OR'))->field('id,password')->find();//查找用户
+		$user = M('user')->where(array('username'=>$username,'email'=>$username,'_logic'=>'OR'))->field('id,password,status')->find();//查找用户
+        if($user['status'] !=1 ){
+            $this->_error = "用户已被禁用";
+            return false;
+        }
 		$wp_hasher = new PasswordHash(8, TRUE); //验证加密
 		$sok = $wp_hasher->CheckPassword($password,$user['password']);
         if ($user['id']&&$sok){

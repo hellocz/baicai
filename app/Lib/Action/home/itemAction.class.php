@@ -365,11 +365,13 @@ class itemAction extends frontendAction {
       For chart
       */
       $goods_info = getgoods_info($item['url'],$item['orig_id']);
-      $chart_data = D("price_history")->generateChart($goods_info['goods_id'],$item['orig_id']);
-      if($chart_data == null){
+      if(!empty($goods_info)){
+        $chart_data = D("price_history")->generateChart($goods_info['goods_id'],$item['orig_id']);
+        if($chart_data == null){
+        }
+        else{
+        $this->assign("chart_data",json_encode($chart_data));}
       }
-      else{
-      $this->assign("chart_data",json_encode($chart_data));}
  //   $hot_list=M()->query("select * from try_comment where itemid=$itemid and xid=$xid and status=1  order by zan desc,id desc limit $pager_hot->firstRow , $pager_hot->listRows ");
   //  $hot_list_tmp=M("comment")->where(array('itemid'=>$itemid,'xid'=>$xid,'status'=>1))->order("zan desc")->limit($pager_hot->firstRow , $pager_hot->listRows)->select();
    /* 
