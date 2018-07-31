@@ -101,7 +101,7 @@ class item_cateModel extends Model
      */
     public function cate_data_cache() {
         $cate_data = array();
-        $result = $this->field('id,pid,spid,name,fcolor,type,seo_title,seo_keys,seo_desc,top')->where('status=1')->order('ordid')->select();
+        $result = $this->field('id,pid,spid,name,fcolor,type,seo_title,seo_keys,seo_desc,top')->order('ordid')->select();
         foreach ($result as $val) {
             $cate_data[$val['id']] = $val;
         }

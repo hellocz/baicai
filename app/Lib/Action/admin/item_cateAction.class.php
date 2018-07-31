@@ -249,6 +249,7 @@ class item_cateAction extends backendAction {
         if (!is_null($type)) {
             $map['type'] = $type;
         }
+        $map['status'] = 1;
         $return = $this->_mod->field('id,name')->where($map)->select();
 
         if ($return) {

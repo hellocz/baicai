@@ -199,7 +199,7 @@ class bookAction extends frontendAction {
         $page_seo['description'] = $cate_info['seo_desc'];
     }
 
-    $nav_cates =M("item_cate")->where("pid=$cid")->field("id,name")->select();
+    $nav_cates =M("item_cate")->where("pid=$cid and status=1")->field("id,name")->select();
     $nav_cates_filter = array();
     foreach ($nav_cates as $key => $value) {
         $where_nav = array();

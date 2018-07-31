@@ -1489,7 +1489,7 @@ class itemAction extends backendAction {
      */
     public function ajax_getcates() {
         $cate = $this->_post('cate', 'trim');
-        $cate_list = M('item_cate')->where("name like '%" . $cate ."%'")->field("id,name,spid")->order("id asc")->select();
+        $cate_list = M('item_cate')->where("name like '%" . $cate ."%' and status=1")->field("id,name,spid")->order("id asc")->select();
         if(empty($cate_list)){
             $this->ajaxReturn(0, "没有找到分类");
         }
