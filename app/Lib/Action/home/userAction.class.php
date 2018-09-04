@@ -475,7 +475,7 @@ class userAction extends userbaseAction {
         $upyun1->purge($url);
         @ unlink($file);
         $user['is_avator'] = 1;
-        $user['img_url'] = $data . '?v=' . date('ymd');
+        $user['img_url'] = $data . '?v=' . date('his');
         M('user')->where("id=$uid")->save($user);
         $this->ajaxReturn(1, L('upload_success'), $data);
     }
