@@ -65,7 +65,7 @@ $cat_name=array('鞋服箱包','钟表首饰','运动户外','个护美妆','母
         print_r($api_config);
         $c = new TopClient;
         $c->appkey = "23232602";
-        $c->secretKey = "a91ec4b0a09a93dd2c9e85d88665ef26";
+        $c->secretKey = "xxxxxxxxxxxxxxxxxxxxxxxxxxx";
         $req = new PromotionCouponsGetRequest;
         $req->setCouponId("586135d459dd42a784e5f03bf28332b4");
         $resp = $c->execute($req,'daasdasd');
