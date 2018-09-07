@@ -21,7 +21,7 @@ class categoryAction extends frontendAction {
             include_once LIB_PATH . 'Pinlib/taobao/TopSdk.php';
             $c = new TopClient;
             $c->appkey = "23232602";
-            $c->secretKey = "a91ec4b0a09a93dd2c9e85d88665ef26";
+            $c->secretKey = "xxxxxxxxxxxxxxxxxxxxxxxx";
             $req = new TbkDgItemCouponGetRequest;
             $req->setAdzoneId("14718353");
            // $req->setPlatform(1);
