@@ -90,9 +90,10 @@ class backendAction extends baseAction
         $this->assign("page", $page);
         $this->assign('list_table', true);
         if($count == 0 ){
-        $mod = D($this->_name);
-        !empty($mod) && $this->_list($mod, $map);
-        }
+       $where_amazon['go_link'] =array('like',"%$keyword%");
+       $item_list = M("item")->field($field)->where($where_amazon)->order("add_time desc")->select();
+       $this->assign('list', $item_list);
+       }
         }
             else{
         $mod = D($this->_name);

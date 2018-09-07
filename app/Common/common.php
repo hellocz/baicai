@@ -598,6 +598,47 @@ function getHTTPS($url) {
 	curl_close($ch);
 	return mb_convert_encoding($result, 'utf-8', 'GBK,UTF-8,ASCII');
 }
+function http($url, $method, $postfields = null, $headers = array(), $debug = false)
+{
+$ci = curl_init();
+/* Curl settings */
+curl_setopt($ci, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
+curl_setopt($ci, CURLOPT_CONNECTTIMEOUT, 30);
+curl_setopt($ci, CURLOPT_SSL_VERIFYPEER, FALSE);
+curl_setopt($ci, CURLOPT_SSL_VERIFYHOST, FALSE);
+curl_setopt($ci, CURLOPT_TIMEOUT, 30);
+curl_setopt($ci, CURLOPT_RETURNTRANSFER, true);
+
+switch ($method) {
+case 'POST':
+curl_setopt($ci, CURLOPT_POST, true);
+if (!empty($postfields)) {
+curl_setopt($ci, CURLOPT_POSTFIELDS, $postfields);
+$this->postdata = $postfields;
+}
+break;
+}
+curl_setopt($ci, CURLOPT_URL, $url);
+curl_setopt($ci, CURLOPT_HTTPHEADER, $headers);
+curl_setopt($ci, CURLINFO_HEADER_OUT, true);
+
+$response = curl_exec($ci);
+$http_code = curl_getinfo($ci, CURLINFO_HTTP_CODE);
+
+if ($debug) {
+echo "=====post data======\r\n";
+var_dump($postfields);
+
+echo '=====info=====' . "\r\n";
+print_r(curl_getinfo($ci));
+
+echo '=====$response=====' . "\r\n";
+print_r($response);
+}
+curl_close($ci);
+return array($http_code, $response);
+}
+
 function get_result($state = 10001, $data , $msg="请求成功"){
     $result  = [
         'state' => $state,
@@ -614,7 +655,222 @@ function getgoods_info($url,$orig_id){
                 return "";
             }
             return array("goods_id"=>$match_id[1],"url"=>"https://item.jd.com/" . $match_id[1] . ".html");
+        case 393:
+         preg_match("/(\d+)\.html/", $url,$match_id);
+         if(empty($match_id[1])){
+                return "";
+            }
+        return array("goods_id"=>$match_id[1],"url"=>"https://item.jd.hk/" . $match_id[1] . ".html");
+        case 29;
+        case 5;
+        case 3:
+        $goods_id = get_tb_id($url);
+        if($goods_id){
+        	return array("goods_id"=>$goods_id,"url"=>"https://detail.tmall.com/item.htm?id=" . $goods_id);
         }
+        else{
+        	return "";
+        }
+        case 506;
+        case 2:
+        $pattern = '/product\/(([a-zA-Z]|\d){10})/';
+        $pattern_num = preg_match($pattern,$url,$match_id);
+            if($pattern_num!=0){
+                $goods_id = $match_id[1];
+                return array("goods_id"=>$goods_id,"url"=>"https://www.amazon.cn/dp/" . $goods_id);
+             }
+              else{
+           $pattern1 = '/dp\/(([a-zA-Z]|\d){10})/';
+           $pattern_num1 = preg_match($pattern1,$url,$match_id);
+             if($pattern_num1!=0){
+                 $goods_id = $match_id[1];
+                return array("goods_id"=>$goods_id,"url"=>"https://www.amazon.cn/dp/" . $goods_id);
+             }
+             else{
+             	return "";
+             }
+         }
         return "";
     }
+}
+function tb_uland_parse($url){
+	$appkey = "4799843";
+	$uland_params_url = parse_url($url);
+    parse_str($uland_params_url['query'],$uland_url);
+    $e = $uland_url['e'];
+    if(!$e){
+        $e = $uland_url['me'];
+    	}
+    if($e){
+        $applinzi_parse_url = "http://1.alimama.applinzi.com/getCouponParm.php?appkey=" . $appkey . "&e={$e}";
+        $applinzi_parse_data = http($applinzi_parse_url);
+        if($applinzi_parse_data[0] == 200)
+	        {
+	        	$applinzi_parse_result = json_decode($applinzi_parse_data[1], TRUE);
+	        }
+        return array("goods_id"=>$applinzi_parse_result['data']['result']['item']['itemId'],"retStatus"=>$applinzi_parse_result['data']['result']['retStatus'],"discountPrice"=>$applinzi_parse_result['data']['result']['item']['discountPrice'],"amount"=>$applinzi_parse_result['data']['result']['amount'],"uland_url"=>$url,"title"=>$applinzi_parse_result['data']['result']['item']['title']);
+    	}
+    	return null;   
+    }
+function get_tb_id($url){
+	$goods_id = tb_uland_parse($url)['goods_id'];
+	if($goods_id){
+		return $goods_id;
+	}
+	else{
+		$uland_params_url = parse_url($url);
+		parse_str($uland_params_url['query'],$uland_url);
+		if($uland_url['itemId']){
+			return $uland_url['itemId'];
+		}
+
+		$redrect_content =file_get_contents($url);
+    //    $headers = get_headers('http://guangdiu.com/' . $e->href, TRUE);
+        $pattern = '/((https%3A%2F%2Fuland.taobao.com.*?)\")/';
+        $pattern_num = preg_match($pattern, $redrect_content,$pattern_result);
+    //    if(empty($pattern_result[2])){
+    //        $pattern_num = preg_match($pattern, $headers['Location'],$pattern_result);
+    //    }
+        $url = urldecode($pattern_result[2]);
+        return tb_uland_parse($url)['goods_id'];
+	}
+}
+
+function generater_ulan_by_id($goods_id,$mm_pid = "mm_27883119_3410238_144058484"){
+	$appkey = "4799843";
+	$mm_pid = trim($mm_pid);
+	$applinzi_high_url = "http://1.taoketool.applinzi.com/getHighapi.php?appkey=" . $appkey . "&pid=" . $mm_pid . "&goodsId=" . $goods_id;
+    $applinzi_high_data = http($applinzi_high_url);
+    if($applinzi_high_data[0] == 200)
+        {
+        $applinzi_high_result = json_decode($applinzi_high_data[1], TRUE);
+        return $applinzi_high_result['result']['coupon_click_url'];
+        }
+    return null;
+}
+
+function jd_price($goods_id){
+        include_once LIB_PATH . 'Pinlib/jd/JdClient.php';
+        include_once LIB_PATH . 'Pinlib/jd/request/WarePriceGetRequest.php';
+
+        $c = new JdClient();
+
+        $c->appKey = "01E4158966092DC5F5E95A0ED39F2C64";
+
+        $c->appSecret = "5a0beb8b45964b43a5e0e98bd455afa4";
+
+        $c->accessToken = "53fd32f5-27fb-404d-90f2-b70a12df4936";
+
+        $req = new WarePriceGetRequest();
+
+        $req->setSkuId($goods_id);
+
+        $resp = $c->execute($req, $c->accessToken);
+        $resp_json = json_encode($resp);
+        $result = json_decode($resp_json,true);
+        if($result['code'] == 0){
+        return floatval($result['price_changes'][0]['price']);
+    }
+    else
+        return 0;
+}
+
+function tb_price($goods_id){
+	 $uland_url = generater_ulan_by_id($goods_id);
+	 if($uland_url){
+	 	$taobao_info = tb_uland_parse($uland_url);
+	 	if($taobao_info){
+	 		return $taobao_info;
+	 	}
+	 	return null;
+	 }
+	 return null;
+}
+
+function amazon_price($goods_ids){
+
+$access_key_id = "AKIAJARJMU6KON6YVZDQ";
+
+// Your Secret Key corresponding to the above ID, as taken from the Your Account page
+$secret_key = "YF0qF9GP1sFR2oMRmafVkiM+wq9q0EMd54e104oE";
+
+// The region you are interested in
+$endpoint = "webservices.amazon.cn";
+
+$uri = "/onca/xml";
+
+$params = array(
+    "Service" => "AWSECommerceService",
+    "Operation" => "ItemLookup",
+    "AWSAccessKeyId" => "AKIAJARJMU6KON6YVZDQ",
+    "AssociateTag" => "abaicaiozb-23",
+    "ItemId" => $goods_ids,
+    "IdType" => "ASIN",
+    "ResponseGroup" => "OfferFull"
+);
+
+// Set current timestamp if not set
+if (!isset($params["Timestamp"])) {
+    $params["Timestamp"] = gmdate('Y-m-d\TH:i:s\Z');
+}
+
+// Sort the parameters by key
+ksort($params);
+
+$pairs = array();
+
+foreach ($params as $key => $value) {
+    array_push($pairs, rawurlencode($key)."=".rawurlencode($value));
+}
+
+// Generate the canonical query
+$canonical_query_string = join("&", $pairs);
+
+// Generate the string to be signed
+$string_to_sign = "GET\n".$endpoint."\n".$uri."\n".$canonical_query_string;
+
+// Generate the signature required by the Product Advertising API
+$signature = base64_encode(hash_hmac("sha256", $string_to_sign, $secret_key, true));
+
+// Generate the signed URL
+$request_url = 'https://'.$endpoint.$uri.'?'.$canonical_query_string.'&Signature='.rawurlencode($signature);
+
+$i = 0;
+
+$applinzi_high_data = http($request_url);
+    if($applinzi_high_data[0] == 200)
+        {
+        $applinzi_high_result = json_decode($applinzi_high_data[1], TRUE);
+		$xml = simplexml_load_string($applinzi_high_data[1]);
+		//$result = $xpath->query("//Item")->item(0);
+		$prices = array();
+		foreach ($xml->Items->Item as $item) {
+			$price =floatval($item->Offers->Offer->OfferListing->Price->Amount / 100);
+			var_dump($price);
+			 if(!$price){
+      			$price = 0;
+      		}
+      		array_push($prices, $price);
+		}
+      	
+
+      	// for($i=0 ; i<$price_list->length; $i++){
+      	// 	$price = floatval($price_list->item($i)->firstChild->nodeValue) / 100;
+      	// 	if(!$price){
+      	// 		$price = 0;
+      	// 	}
+      	// 	var_dump($price);
+      	// 	$item_list[$i]['price'] = $price;
+      	//}
+		//$price = floatval($vals[$index['AMOUNT'][0]]['value']) / 100;
+        return $prices;
+        }
+        else{
+        	var_dump($applinzi_high_data[0]);
+        	return null;
+        }
+    return null;
+}
+
+
 ?>

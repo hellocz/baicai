@@ -27,81 +27,74 @@ class shopAction extends userbaseAction
      */
     public function shoplist($data){
         $tp = $data['tp'];
+         empty($data['page']) && $data['page'] = 1;
         $page = $data['page'] * 10;
         empty($data['pagesize']) && $data['pagesize'] = 10;
         $time=time();
-        $db_pre = C('DB_PREFIX');
         $item_orig = M("item_orig");
-        $where = $db_pre."item_orig.ismy=".$tp;
-        if($tp == 2){
-//            $where = $db_pre."item_orig.ismy = 0 or ".$db_pre."item_orig.ismy = 1";//重置搜索条件
-            $where = '1=1';
-        }
+
         if(!empty($data['cid'])){
-            $where .= ' and cate_id = '.$data['cid'];
+            $where['cate_id'] = $data['cid'];
         }
-        
-        else{
-            $where .= ' and cate_id != 342 and cate_id != 349 and cate_id != 3672 and cate_id != 3673 and cate_id != 3675 ';
-        }
-        
 
         if(!empty($data['orig_id'])){
-            $where .= ' and orig_id = '.$data['orig_id'];
+            $where['orig_id'] = $data['orig_id'];
         }
 
         if(!empty($data['key'])){
-            $where .= " and title like '%".$data['key']."%'";
+            $where['title'] = array("like","%" . $data['key'] . "%");
         }
-       
-//        $field = 'i.id,i.uid,i.uname,i.title,i.intro,i.img,i.price,i.likes,i.intro,i.content,i.comments,i.comments_cache,i.add_time,i.orig_id,i.url,i.go_link,i.zan';
-        $field = 'name,i.id,i.title,i.img,i.price,i.comments,i.likes,i.add_time,i.zan,i.go_link,i.hits,i.cate_id,i.orig_id';
-         if(!empty($data['isbao'])){
-        $item_list = $item_orig
-            ->where($where." and i.status=1 and i.add_time<$time ")
-            ->join($db_pre . 'item_diu i ON i.orig_id = ' . $db_pre . 'item_orig.id')
-            ->field($field)
-            ->order("i.add_time desc, i.id desc")
+        $where['add_time'] = array('lt',$time);
+        $where['status'] = 1;
+        $field = 'id,uid,uname,orig_id,title,intro,img,price,likes,comments,comments_cache,url,zan,hits,go_link,add_time';
+        if(!empty($data['isbao'])){
+           $item_list = M("item_diu")->where($where)->field($field)
+            ->order("add_time desc")
             ->limit($page-10, $data['pagesize'])
             ->select();
+        // $item_list = $item_orig
+        //     ->where($where." and i.status=1 and i.add_time<$time ")
+        //     ->join($db_pre . 'item_diu i ON i.orig_id = ' . $db_pre . 'item_orig.id')
+        //     ->field($field)
+        //     ->order("i.add_time desc, i.id desc")
+        //     ->limit($page-10, $data['pagesize'])
+        //     ->select();
         }else{
-            
-            if(!empty($data['key'])){
-            require LIB_PATH . 'Pinlib/php/lib/XS.php';
-        $xs = new XS('baicai');
-        $search = $xs->search;   //  获取搜索对象
-        $search->setLimit(30,10*($data['page']-1)); 
-        $search->setSort('add_time',false);
-        $search->setQuery($data['key']);
-        $docs = $search->search();
-        $count = $search->count();
-        $field = 'id,uid,uname,orig_id,title,intro,img,price,likes,comments,comments_cache,url,zan,hits,go_link,add_time';
-        //分页
-        $item_mod = M('item');
 
-        foreach ($docs as $doc) {
-            if($str==""){
-                 $str=$doc->id;
+            $field = 'id,uid,uname,orig_id,title,intro,img,price,likes,comments,comments_cache,url,zan,hits,go_link,add_time';
+            $thd = M("item")->where('istop = 1')->field($field)->limit(8)->order("add_time desc")->select();
+            if(!empty($data['key'])){
+                require LIB_PATH . 'Pinlib/php/lib/XS.php';
+                $xs = new XS('baicai');
+                $search = $xs->search;   //  获取搜索对象
+                $search->setLimit(30,10*($data['page']-1)); 
+                $search->setSort('add_time',false);
+                $search->setQuery($data['key']);
+                $docs = $search->search();
+                $count = $search->count();
+                //分页
+                $item_mod = M('item');
+
+                foreach ($docs as $doc) {
+                    if($str==""){
+                         $str=$doc->id;
+                    }
+                    else{
+                       $str.=",".$doc->id;
+                    }
+                }
+                $str && $where1['id'] = array('in', $str);
+                //$where1['cate_id'] = array('not in','342,349,3672,3673,3675');
+                $where1['add_time'] = array('lt',time());
+                $str && $item_list = $item_mod->field($field)->where($where1)->order('add_time DESC')->limit(10)->select();
             }
             else{
-               $str.=",".$doc->id;
+                $item_list = M("item")->where($where)->field($field)
+                ->order("add_time desc")
+                ->limit($page-10, $data['pagesize'])
+                ->select();
             }
-        }
-        $str && $where1['id'] = array('in', $str);
-        $where1['cate_id'] = array('not in','342,349,3672,3673,3675');
-        $where1['add_time'] = array('lt',time());
-        $str && $item_list = $item_mod->field($field)->where($where1)->order('add_time DESC')->limit(10)->select();
-    }
-    else{
-        
-        $item_list = $item_orig
-            ->where($where." and i.status=1 and i.add_time<$time ")
-            ->join($db_pre . 'item i ON i.orig_id = ' . $db_pre . 'item_orig.id')
-            ->field($field)
-            ->order("i.add_time desc, i.id desc")
-            ->limit($page-10, $data['pagesize'])
-            ->select();
-        }
+            $item_list = array_merge($thd,$item_list);
         }
         foreach ($item_list as $key => &$val) {
             if(!isset($val['shopid'])){
@@ -112,7 +105,7 @@ class shopAction extends userbaseAction
             $val['go_link'] = array_shift(unserialize($val['go_link']));
             $item_list[$key]['name']=getly($val['orig_id']);
             if($val['cate_id'] == 349 || $val['cate_id'] == 3672 || $val['cate_id'] == 3673 || $val['cate_id'] == 3675){
-                unset($item_list[$key]);
+          //      unset($item_list[$key]);
             }
         }
         $code = 10001;
@@ -322,7 +315,7 @@ class shopAction extends userbaseAction
             }
             $val['go_link'] = array_shift(unserialize($val['go_link']));
             if($val['cate_id'] == 349 || $val['cate_id'] == 3672 || $val['cate_id'] == 3673 || $val['cate_id'] == 3675){
-                unset($item_list[$key]);
+             //   unset($item_list[$key]);
             }
         }
         $code = 10001;
@@ -485,7 +478,7 @@ class shopAction extends userbaseAction
             $val['go_link'] = array_shift(unserialize($val['go_link']));
             $list[$key]['zan'] = $list[$key]['zan']   +intval($list[$key]['hits'] /10);
             if($val['cate_id'] == 349 || $val['cate_id'] == 3672 || $val['cate_id'] == 3673 || $val['cate_id'] == 3675){
-                unset($list[$key]);
+           //     unset($list[$key]);
             }
         }
         $code = 10001;

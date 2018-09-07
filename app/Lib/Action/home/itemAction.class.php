@@ -365,7 +365,7 @@ class itemAction extends frontendAction {
       For chart
       */
       $goods_info = getgoods_info($item['url'],$item['orig_id']);
-      if(!empty($goods_info)){
+      if($goods_info){
         $chart_data = D("price_history")->generateChart($goods_info['goods_id'],$item['orig_id']);
         if($chart_data == null){
         }
@@ -814,6 +814,7 @@ class itemAction extends frontendAction {
                           $diu_item['url'] = $this->converturl($e->href);
                         }
                           $arr[0]=array('name'=>"直达链接",'link'=>$diu_item['url']);
+                          shortUrlCreate($diu_item['url']);
                           $diu_item['go_link'] =serialize($arr);
                      }
 
@@ -920,7 +921,7 @@ class itemAction extends frontendAction {
          $profile['us_amazon']="show00-20";
          $profile['ch_amazon']="baicaiobl-23";
          $profile['sid']="baoliao";
-         $profile['mm_pid']="mm_25900687_52350449_8466500195";
+         $profile['mm_pid']="mm_27883119_3410238_144058484";
 
 
         if (empty($host) or substr_count(strtolower($url),'http')>=2){
@@ -1014,7 +1015,7 @@ class itemAction extends frontendAction {
             $applinzi_parse_result = json_decode($applinzi_parse_data[1], TRUE);
             }
             if($applinzi_parse_result['data']['result']['item']['itemId']){
-                $applinzi_high_url = "http://1.alimama.applinzi.com/getHighapi.php?appkey=4799843&pid=" . $profile['mm_pid'] . "&goodsId=" . $applinzi_parse_result['data']['result']['item']['itemId'];
+                $applinzi_high_url = "http://1.taoketool.applinzi.com/getHighapi.php?appkey=4799843&pid=" . $profile['mm_pid'] . "&goodsId=" . $applinzi_parse_result['data']['result']['item']['itemId'];
                 $applinzi_high_data = $this->http($applinzi_high_url);
                  if($applinzi_high_data[0] == 200)
                 {
@@ -1047,6 +1048,7 @@ class itemAction extends frontendAction {
              }
              */
         }
+      
         else{
                $origs = M('item_orig')->where("url like '%" . $host . "%'")->Field('url ,id')->select();
                 if(count($origs)!=0){

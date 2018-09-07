@@ -151,7 +151,7 @@
 
 							<label><input type="radio" name="status" class="radio_style" value="3" <if condition="$info.status eq '3'">checked="checked"</if>> 退回</label>
 
-							<label><input type="radio" name="status" class="radio_style" value="4" <if condition="$info.status eq '4'">checked="checked"</if>> 同时发布到首页</label>
+							<label><input type="checkbox" value="1" name="isfront" id="isfront" <if condition="$info['isfront'] eq 1">checked="checked"</if>> 同时发布到首页</label>
 
 							<label><input type="checkbox" value="1" name="isbest" id="isbest" <if condition="$info['isbest'] eq 1">checked</if>>精品</label> &nbsp;&nbsp;
 

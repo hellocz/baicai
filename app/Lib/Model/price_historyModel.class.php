@@ -3,7 +3,9 @@
 class price_historyModel extends Model
 {
     function generateChart($goods_id,$orig_id){
-    	$price_list = $this->where("goods_id=$goods_id and orig_id=$orig_id")->order("time asc")->select();
+        $where['goods_id'] = $goods_id;
+        $where['orig_id'] = $orig_id;
+    	$price_list = $this->where($where)->order("time asc")->select();
     	$x = array();
     	$y = array();
     	if(count($price_list)>0){
@@ -20,7 +22,7 @@ class price_historyModel extends Model
     	}
     }
 
-    function history_price_init($goods_id,$orig_id,$url){
+    function history_price_init($goods_id,$orig_id,$url,$bottom_price){
     	$price_item = $this->where(array("orig_id"=>$orig_id,"goods_id"=>$goods_id))->find();
         if(!$price_item){
             $price_list = $this->get_price_history_list($url);
@@ -31,6 +33,11 @@ class price_historyModel extends Model
                 $price_item['goods_id'] = $goods_id;
                 $this->add($price_item);
             }
+        }
+        $time = strtotime(date('Ymd'));
+        $price_today = M("price_history")->where(array("orig_id" => $orig_id,"goods_id" => $goods_id, "time" => $time))->find();
+        if(empty($price_today)){
+            $status = M("price_history")->add(array("orig_id" => $orig_id,"goods_id" => $goods_id, "time" => $time,"price" => $bottom_price));
         }
     }
 
@@ -69,7 +76,7 @@ class price_historyModel extends Model
         $response = curl_exec($ci);
         $http_code = curl_getinfo($ci, CURLINFO_HTTP_CODE);
 
-        if ($debug) {
+        if (!$debug) {
 
         echo '=====info=====' . "\r\n";
         print_r(curl_getinfo($ci));

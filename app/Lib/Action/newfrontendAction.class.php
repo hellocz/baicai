@@ -127,7 +127,7 @@ class newfrontendAction extends baseAction {
 
         include_once LIB_PATH . 'Pinlib/taobao/TopSdk.php';
         $c = new TopClient;
-        $c->appkey = "23232602";
+        $c->appkey = "25060252";
         $c->secretKey = "xxxxxxxxxxxxxxxxxx";
         $req = new TbkDgItemCouponGetRequest;
         $req->setAdzoneId("14718353");

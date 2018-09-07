@@ -21,6 +21,7 @@ class crontabAction extends frontendAction {
         $fivemin_before = $time -300;
         $map['add_time'] = array('between',"$fivemin_before, $time");
         $map['status'] =1;
+        $map['orig_id'] = array("not in",array(3,5,29,50,268,297,841,987));
         $items= M('item')->field('id,title,img,content,price')->where($map)->select();
         $oauth = new oauth('sina');
         foreach ($items as $item) {

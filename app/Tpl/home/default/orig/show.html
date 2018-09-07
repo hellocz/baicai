@@ -59,7 +59,7 @@
 
              <a <if condition="$tab eq 'isbao'">href="{:U('item/index',array('id'=>$r['id'],'isbao'=>1))}"<else/> href="{:U('item/index',array('id'=>$r['id']))}" </if> title="{$r.title}" target="_blank"><img src="<if condition="$r['img']==''">/images/nopic.jpg<else/> <if condition="preg_match('/img.baicaio.com/',$r['img'])">{:attach($r['img'],'item')}!thumb208<else/>{:attach($r['img'],'item')}</if></if>" title="{$r.title}" alt="{$r.title}"/></a>
 
-             <h2> <a <if condition="$tab eq 'isbao'">href="{:U('item/index',array('id'=>$r['id'],'isbao'=>1))}"<else/> href="{:U('item/index',array('id'=>$r['id']))}" </if> title="{$r.title}" target="_blank">{$r.title|msubstr=0,30,''}<em style="color:red;">{$r.price}</em></a>
+             <h2> <a <if condition="$tab eq 'isbao'">href="{:U('item/index',array('id'=>$r['id'],'isbao'=>1))}"<else/> href="{:U('item/index',array('id'=>$r['id']))}" </if> title="{$r.title}" target="_blank"><span style="height: 40px;overflow: hidden;display: block;">{$r.title}</span><em style="color:red;">{$r.price}</em></a>
              <span style="height: 25px; position: absolute;top: 245px;right: 0;padding: 0 20px;background: rgba(255,255,255,0.7);"><a href="{:U('orig/show',array('id'=>$r['orig_id']))}" title="{:getly($r['orig_id'])}">{:getly($r['orig_id'])}</a></span> </h2><div class="clear"></div>
 
        

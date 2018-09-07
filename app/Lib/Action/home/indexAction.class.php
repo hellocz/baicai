@@ -80,7 +80,7 @@ class indexAction extends frontendAction {
 		if($p<1){
 			$article_end_time=time();
 		}
-		$article_list = M("article")->where("add_time > $article_begin_time and add_time < $article_end_time and status=4")->select();
+		$article_list = M("article")->where("add_time > $article_begin_time and add_time < $article_end_time and status=1 and isfront =1")->select();
 		if(count($article_list)>=1){
 		$list = array_merge($list, $article_list); 
 		usort($list, 'sortByAddTime');

@@ -131,8 +131,8 @@
       </div>
 
 	  <a name="pl"></a>
-      <if condition="$item['uid'] neq 0"><else/> <include file="public:comment" /> </if>
-      
+      <!--<if condition="$item['uid'] neq 0"><else/> </if>
+      --> <include file="public:comment" /> 
     </div>
   </div>
   </div>
@@ -428,6 +428,22 @@ window.onload =function(){
 	});
 	qrcode.makeCode("http://"+window.location.host+"{:U('wap/item/index',array('id'=>$item['id']))}");
 }
+</script>
+<script type='text/javascript' data-turbolinks-eval='false'>
+var DuoMaiSiteID = 56396;
+document.write(unescape("%3Cscript src='https://djl.duomai.com/index.php?site_id=" + DuoMaiSiteID + ".js' type='text/javascript'%3E%3C/script%3E"));
+document.write(unescape("%3Cscript src='https://djl.duomai.com/duojinlian.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type='text/javascript' data-turbolinks-eval='false'>
+try{
+  var _djl_ = DuoJinLian._init_();
+  _djl_.hulue('');
+  _djl_.fankuibiaoqian('SS');
+         _djl_.zhizuo('beautyexpert,lookfantastic,hqhair,mankind,');
+  _djl_.run();
+}
+catch(e)
+{}
 </script>
 </div>
 </div>

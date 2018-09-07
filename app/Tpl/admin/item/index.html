@@ -102,6 +102,28 @@
 
 					</select>
 
+                    &nbsp;&nbsp;商城 :
+
+                    <select class=" mr10"  name="orig_id">
+
+                        <option value="">请选择</option>
+
+                        <option value="3" <if condition="$search.orig_id eq '3'">selected="selected"</if>>天猫商城</option>
+
+                        <option value="2" <if condition="$search.orig_id eq '2'">selected="selected"</if>>亚马逊中国</option>
+
+                        <option value="358" <if condition="$search.orig_id eq '358'">selected="selected"</if>>京东商城</option>
+
+                        <option value="393" <if condition="$search.orig_id eq '393'">selected="selected"</if>>京东全球购</option>
+
+                        <option value="29" <if condition="$search.orig_id eq '29'">selected="selected"</if>>聚划算</option>
+
+                        <option value="5" <if condition="$search.orig_id eq '5'">selected="selected"</if>>淘宝网</option>
+
+                        <option value="506" <if condition="$search.orig_id eq '506'">selected="selected"</if>>淘宝网</option>
+
+                    </select>
+
                     <input type="hidden" name="cate_id" id="J_cate_id" value="{$search.cate_id}" />
 
                     <div class="bk8"></div>
@@ -208,6 +230,8 @@
 
 	<th align="left"><span data-tdtype="order_by" data-field="title">来源</span></th>
 
+    <th width="60"><span data-tdtype="order_by" data-field="orig_id">商城</span></th>
+
                 <th width="60"><span data-tdtype="order_by" data-field="cate_id">分类</span></th>
 
                 <th width="60">用户名</th>
@@ -274,7 +298,7 @@
 
 				</td>
 
-				
+				<td align="center"><b>{:getly($val['orig_id'])}</b></td>
 
                 <td align="center"><b>{$cate_list[$val['cate_id']]}</b></td>
 

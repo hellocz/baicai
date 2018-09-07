@@ -1,0 +1,104 @@
+<include file="public:header" />
+
+<!--添加商品-->
+
+<div class="subnav">
+
+    <h1 class="title_2 line_x">价格扫描机器人设置</h1>
+
+</div>
+
+<div class="pad_lr_10">
+
+	<div class="col_tab">
+
+
+		<div class="J_panes">
+
+        <div class="content_list pad_10">
+
+		<table width="100%" cellpadding="2" cellspacing="1" class="table_form">
+
+			<tr>
+
+				<th width="120">淘宝类 :</th>
+				<td>
+				<span>收录总数:{$tb.total}</span>   <span>今日未扫描数:{$tb.process}</span>   <span>今日已扫描:{$tb.scaned}</span>
+				</td>
+			</tr>
+			<tr>
+				<th width="120">操作 :</th>
+				<td>
+				<input type="button" class="action btn btn_submit" value="暂停扫描" data-name="stop_scan" data-id="3">
+				<input type="button" class="action btn btn_submit" value="继续扫描" data-name="continue_scan" data-id="3">
+				<input type="button" class="action btn btn_submit" value="清除草稿" data-name="remove_draft" data-id="3">
+				<input type="button" class="action btn btn_submit" value="重新开始" data-name="begin" data-id="3">
+				</td>
+			</tr>
+
+			<tr>
+
+				<th width="120">亚马逊类 :</th>
+				<td>
+				<span>收录总数:{$amazon.total}</span>   <span>今日未扫描数:{$amazon.process}</span>   <span>今日已扫描:{$amazon.scaned}</span>
+				</td>
+			</tr>
+			<tr>
+				<th width="120">操作 :</th>
+				<td>
+				<input type="button" class="action btn btn_submit" value="暂停扫描" data-name="stop_scan" data-id="2">
+				<input type="button" class="action btn btn_submit" value="继续扫描" data-name="continue_scan" data-id="2">
+				<input type="button" class="action btn btn_submit" value="清除草稿" data-name="remove_draft" data-id="2">
+				<input type="button" class="action btn btn_submit" value="重新开始" data-name="begin" data-id="2">
+				</td>
+			</tr>
+
+			<tr>
+
+				<th width="120">京东类 :</th>
+				<td>
+				<span>收录总数:{$jd.total}</span>   <span>今日未扫描数:{$jd.process}</span>   <span>今日已扫描:{$jd.scaned}</span>
+				</td>
+			</tr>
+			<tr>
+				<th width="120">操作 :</th>
+				<td>
+				<input type="button" class="action btn btn_submit" value="暂停扫描" data-name="stop_scan" data-id="1">
+				<input type="button" class="action btn btn_submit" value="继续扫描" data-name="continue_scan" data-id="1">
+				<input type="button" class="action btn btn_submit" value="清除草稿" data-name="remove_draft" data-id="1">
+				<input type="button" class="action btn btn_submit" value="重新开始" data-name="begin" data-id="1">
+				</td>
+			</tr>
+
+			
+
+		</div>
+
+	</div>
+
+</div>
+
+
+<include file="public:footer" />
+
+<script type="text/javascript">
+	$(".action").click(function(){
+		var id = $(this).data("id");
+		var name = $(this).data("name");
+		$.post('{:U("monitor/do_action")}', {id:id,name:name}, function(result){
+
+			if(result.status == 1){
+				$.pinphp.tip({content:result.msg});
+			}else{
+				$.pinphp.tip({content:result.msg, icon:'error'});
+
+			}
+
+		},'json');
+	});
+</script>
+
+</body>
+
+</html>
+

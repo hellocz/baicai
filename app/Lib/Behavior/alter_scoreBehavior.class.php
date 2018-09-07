@@ -22,7 +22,7 @@ class alter_scoreBehavior extends Behavior {
             $score_log_mod = D('score_log');
             $score_log_mod->create(array(
                 'uid' => $_data['uid'],
-                'uname' => $_data['uname'],
+                'uname' => $_data['uname'] . '1',
                 'action' => $_data['action'],
                 'score' => $score,
             ));

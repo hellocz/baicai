@@ -458,25 +458,29 @@ class itemAction extends backendAction {
         ($uname = $this->_request('uname', 'trim')) && $map['uname'] = array('like', '%'.$uname.'%');
         ($item_type = $this->_request('item_type', 'trim')) && $map[$item_type][] = array('eq', 1);   //商品属性
 
-        if($item_type == "isoriginal_plus"){
-            unset($map['isoriginal_plus']);
-            $map['isoriginal'] = array('eq', 1);
-            $item_orig = M("item_orig");
-            $orig_ids = $item_orig->where("ismy=1 or id=2 or id=506")->field("distinct id")->select();
-               foreach($orig_ids as $key=>$val){
+        // if($item_type == "isoriginal_plus"){
+        //     unset($map['isoriginal_plus']);
+        //     $map['isoriginal'] = array('eq', 1);
+        //     $item_orig = M("item_orig");
+        //     $orig_ids = $item_orig->where("ismy=1 or id=2 or id=506")->field("distinct id")->select();
+        //        foreach($orig_ids as $key=>$val){
 
-                  if($str==""){
+        //           if($str==""){
 
-                    $str=$val['id'];
+        //             $str=$val['id'];
 
-                  }else{
+        //           }else{
 
-                    $str.=",".$val['id'];
+        //             $str.=",".$val['id'];
 
-                  }
+        //           }
 
-               }
-            $map['orig_id'] = array('in',$str);
+        //        }
+        //     $map['orig_id'] = array('in',$str);
+        // }
+        $orig_id = $this->_request('orig_id', 'intval');
+        if($orig_id){
+            $map['orig_id'] = $orig_id;
         }
         $cate_id = $this->_request('cate_id', 'intval');
         if ($cate_id) {
@@ -523,6 +527,7 @@ class itemAction extends backendAction {
             'cate_id' => $cate_id,
             'keyword' => $keyword,
             'item_type'=>$item_type,
+            'orig_id'=>$orig_id
         ));
 		
 	/*	echo $source;
@@ -1014,7 +1019,7 @@ class itemAction extends backendAction {
             if(empty($data['img'])){
                 $data['img'] = $item_img;
             }
-            preg_match("/(\d+\.?\d+)元/", $data['price'],$match_prices);
+            preg_match("/(\d+\.?\d*)元/", $data['price'],$match_prices);
             $data['pure_price'] = floatval($match_prices[1]);
 
           //  file_put_contents($file_name, 'img123'.$data['img'].'img123', FILE_APPEND);
@@ -1701,7 +1706,7 @@ class itemAction extends backendAction {
             $applinzi_parse_result = json_decode($applinzi_parse_data[1], TRUE);
             }
             if($applinzi_parse_result['data']['result']['item']['itemId']){
-                $applinzi_high_url = "http://1.alimama.applinzi.com/getHighapi.php?appkey=4799843&pid=" . $_SESSION['admin']['mm_pid'] . "&goodsId=" . $applinzi_parse_result['data']['result']['item']['itemId'];
+                $applinzi_high_url = "http://1.taoketool.applinzi.com/getHighapi.php?appkey=4799843&pid=" . $_SESSION['admin']['mm_pid'] . "&goodsId=" . $applinzi_parse_result['data']['result']['item']['itemId'];
                 $applinzi_high_data = $this->http($applinzi_high_url);
                  if($applinzi_high_data[0] == 200)
                 {
@@ -1722,6 +1727,84 @@ class itemAction extends backendAction {
              }
              */
         }
+        elseif (strcmp($host,'detail.tmall.com')==0){
+        $result['id'] =3;
+        $params_url = parse_url($url);
+        parse_str($params_url['query'],$params);
+        $item_id = $params['id'];
+        if($item_id){
+           $result['convert_url'] = generater_ulan_by_id($item_id,$_SESSION['admin']['mm_pid']);
+        }
+        else{
+          $result['convert_url'] =  $url;
+        }
+
+      }
+      elseif (strcmp($host,'item.taobao.com')==0){
+        $result['id'] =5;
+        $params_url = parse_url($url);
+        parse_str($params_url['query'],$params);
+        $item_id = $params['id'];
+        if($item_id){
+           $result['convert_url'] = generater_ulan_by_id($item_id,$_SESSION['admin']['mm_pid']);
+        }
+        else{
+          $result['convert_url'] =  $url;
+        }
+
+      }
+      elseif (strcmp($host,'detail.ju.taobao.com')==0){
+        $result['id'] =29;
+        $params_url = parse_url($url);
+        parse_str($params_url['query'],$params);
+        $item_id = $params['item_id'];
+        if($item_id){
+           $result['convert_url'] = generater_ulan_by_id($item_id,$_SESSION['admin']['mm_pid']);
+        }
+        else{
+          $result['convert_url'] =  $url;
+        }
+
+      }
+      elseif (strcmp($host,'detail.tmall.hk')==0){
+        $result['id'] =268;
+        $params_url = parse_url($url);
+        parse_str($params_url['query'],$params);
+        $item_id = $params['id'];
+        if($item_id){
+           $result['convert_url'] = generater_ulan_by_id($item_id,$_SESSION['admin']['mm_pid']);
+        }
+        else{
+          $result['convert_url'] =  $url;
+        }
+
+      }
+      elseif (strcmp($host,'chaoshi.detail.tmall.com')==0){
+        $result['id'] =50;
+        $params_url = parse_url($url);
+        parse_str($params_url['query'],$params);
+        $item_id = $params['id'];
+        if($item_id){
+           $result['convert_url'] = generater_ulan_by_id($item_id,$_SESSION['admin']['mm_pid']);
+        }
+        else{
+          $result['convert_url'] =  $url;
+        }
+
+      }
+      elseif (strcmp($host,'detail.yao.95095.com')==0){
+        $result['id'] =987;
+        $params_url = parse_url($url);
+        parse_str($params_url['query'],$params);
+        $item_id = $params['id'];
+        if($item_id){
+           $result['convert_url'] = generater_ulan_by_id($item_id,$_SESSION['admin']['mm_pid']);
+        }
+        else{
+          $result['convert_url'] =  $url;
+        }
+
+      }
          elseif (strcmp($host,'www.kaixinbao.com')==0 || strcmp($host,'u.kaixinbao.com')==0){
             $result['id'] =942;
             $pattern = '/-baoxian\/((\d){6,}).shtml/';
